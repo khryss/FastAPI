@@ -1,3 +1,4 @@
+import requests
 from fastapi import FastAPI
 from pydantic import BaseModel
 
@@ -10,6 +11,11 @@ class Msg(BaseModel):
 @app.get("/")
 async def root():
     return {"message": "Hello World. Welcome to FastAPI!"}
+
+
+@app.get("/proxy_test")
+async def proxy_test():
+    return requests.get('https://data.nasdaq.com/api/v3/datasets/WIKI/FB/data.json').json()
 
 
 @app.get("/path")
