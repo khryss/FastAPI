@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from stock_services import StockService
+from stock_services import StockService, CodeNotFoundError
 
 
 app = FastAPI()
@@ -14,15 +14,19 @@ class StockYearlyAverage(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome! Please go to /yearly_average/<company> "}
+    return {"message": ("Welcome! To start, please go to /yearly_average/<company> ."
+                        "Example: /yearly_average/FB")}
 
 
-@app.get("/yearly_average/{company}")
-async def yearly_average(company: str):
-    stock_service = StockService(company)
+@app.get("/yearly_average/{company_code}")
+async def yearly_average(company_code: str):
+    try:
+        stock_service = StockService(company_code)
+    except CodeNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
     averages = stock_service.get_yearly_average()
-
-    return [StockYearlyAverage(year=av[0], value=av[1]) for av in averages]
+    return [StockYearlyAverage(year=av.year, value=av.average) for av in averages]
 
 
 # @app.get("/proxy_test")

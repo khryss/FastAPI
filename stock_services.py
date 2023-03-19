@@ -1,23 +1,30 @@
 from collections import namedtuple
 
 import nasdaqdatalink
+from nasdaqdatalink.errors.data_link_error import NotFoundError
 
 
 YearAverage = namedtuple("YearAverage", "year average")
+
+
+class CodeNotFoundError(Exception):
+    pass
 
 
 class StockService:
     DATABASE_CODE = 'WIKI'
     FRIDAY_ID = 4
 
-    def __init__(self, company):
-        self.df = nasdaqdatalink.get(f"{self.DATABASE_CODE}/{company}")
+    def __init__(self, company_code):
+        try:
+            self.df = nasdaqdatalink.get(f"{self.DATABASE_CODE}/{company_code}")
+        except NotFoundError:
+            raise CodeNotFoundError(f"Company code not found: {company_code}")
 
     def get_yearly_average(self):
         results = []
 
         # TODO: Edgecase - Are there cases when the week closes at another day?
-        # TODO: Handle exceptions.
 
         current_year = self.df.index.min().year
         max_year = self.df.index.max().year
