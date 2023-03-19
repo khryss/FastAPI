@@ -19,8 +19,8 @@ async def root():
 
 @app.get("/yearly_average/{company}")
 async def yearly_average(company: str):
-    stock_service = StockService()
-    averages = stock_service.get_yearly_average(company)
+    stock_service = StockService(company)
+    averages = stock_service.get_yearly_average()
 
     return [StockYearlyAverage(year=av[0], value=av[1]) for av in averages]
 
