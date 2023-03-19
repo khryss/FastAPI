@@ -14,15 +14,15 @@ class StockYearlyAverage(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World. Welcome to FastAPI!"}
+    return {"message": "Welcome! Please go to /yearly_average/<company> "}
 
 
 @app.get("/yearly_average/{company}")
 async def yearly_average(company: str):
     stock_service = StockService()
-    year, average = stock_service.get_yearly_average(company)
+    averages = stock_service.get_yearly_average(company)
 
-    return StockYearlyAverage(year=year, value=average)
+    return [StockYearlyAverage(year=av[0], value=av[1]) for av in averages]
 
 
 # @app.get("/proxy_test")
